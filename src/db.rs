@@ -851,7 +851,12 @@ impl<T: ThreadMode> DBWithThreadMode<T> {
         self.delete_range_cf_opt(cf, from, to, &WriteOptions::default())
     }
 
-    pub fn write_opt(&self, batch: WriteBatch, writeopts: &WriteOptions) -> Result<(), Error> {
+    pub fn write_opt<B: AsMut<WriteBatch>>(
+        &self,
+        mut batch: B,
+        writeopts: &WriteOptions,
+    ) -> Result<(), Error> {
+        let batch = batch.as_mut();
         unsafe {
             ffi_try!(ffi::rocksdb_write(
                 self.inner.inner(),
@@ -862,11 +867,11 @@ impl<T: ThreadMode> DBWithThreadMode<T> {
         Ok(())
     }
 
-    pub fn write(&self, batch: WriteBatch) -> Result<(), Error> {
+    pub fn write<B: AsMut<WriteBatch>>(&self, batch: B) -> Result<(), Error> {
         self.write_opt(batch, &WriteOptions::default())
     }
 
-    pub fn write_without_wal(&self, batch: WriteBatch) -> Result<(), Error> {
+    pub fn write_without_wal<B: AsMut<WriteBatch>>(&self, batch: B) -> Result<(), Error> {
         let mut wo = WriteOptions::new();
         wo.disable_wal(true);
         self.write_opt(batch, &wo)

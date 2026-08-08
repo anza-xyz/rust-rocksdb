@@ -53,6 +53,12 @@ pub struct WriteBatchWithTransaction<const TRANSACTION: bool> {
     pub(crate) inner: *mut ffi::rocksdb_writebatch_t,
 }
 
+impl<const TRANSACTION: bool> AsMut<Self> for WriteBatchWithTransaction<TRANSACTION> {
+    fn as_mut(&mut self) -> &mut Self {
+        self
+    }
+}
+
 /// Receives the puts and deletes of a write batch.
 ///
 /// The application must provide an implementation of this trait when
